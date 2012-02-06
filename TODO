@@ -1,0 +1,6 @@
+- Catch the event that appears when some icon is actived.
+- Set the emblems.
+- Select the emblems that are being used:
+    - This selection must be the intersection between all the selected files.
+    - If some of the emblems is changed, all the files will have the same
+      emblems.
