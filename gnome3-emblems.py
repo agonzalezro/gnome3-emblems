@@ -35,10 +35,13 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
                                      page=scroll),
 
     def connect_signals(self):
-        self.icon_view.connect('changed', self.test)
+        self.icon_view.connect('activate-cursor-item', self.test)
         self.icon_view.connect('item-activated', self.test)
-        self.icon_view.connect('button-press-event', self.test)
+        self.icon_view.connect('move-cursor', self.test)
+        self.icon_view.connect('select-cursor-item', self.test)
         self.icon_view.connect('selection-changed', self.test)
+        self.icon_view.connect('toggle-cursor-item', self.test)
+        self.icon_view.connect('unselect-all', self.test)
 
     def test(self, *args, **kwargs):
         print 'crap'
@@ -70,7 +73,3 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
             if 'emblem' in icon:
                 pixbuf = theme.load_icon(icon, 48, 0)
                 self.list_store.append([pixbuf, self.get_icon_name(icon), icon])
-
-    def connect_signals(self):
-        return
-    	self.connect("delete-event", Gtk.main_quit)
