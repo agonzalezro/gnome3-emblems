@@ -15,7 +15,7 @@ What's this?
 
 This extension will brings to you a new property page:
 
-![screenshot](https://p.twimg.com/AlKL6fPCEAA_g0_.pnga)
+![screenshot](https://p.twimg.com/AlKL6fPCEAA_g0_.png)
 
 
 Installation
