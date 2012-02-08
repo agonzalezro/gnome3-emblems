@@ -1,10 +1,13 @@
+import os
 from gi.repository import Gtk, GdkPixbuf, Nautilus, GObject
+
 
 class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
     def __init__(self):
         pass
 
     def get_property_pages(self, files):
+        self.files = files
         actual_emblems = self.get_actual_emblems(files)
         property_page = self.create_property_page()
         self.fill_emblems(actual_emblems)
@@ -23,7 +26,7 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
         self.icon_view.set_model(self.list_store)
         self.icon_view.set_pixbuf_column(0)
         self.icon_view.set_text_column(1)
-        self.icon_view.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+        #self.icon_view.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
         self.icon_view.show()
 
         scroll = Gtk.ScrolledWindow()
@@ -35,19 +38,20 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
                                      page=scroll),
 
     def connect_signals(self):
-        self.icon_view.connect('activate-cursor-item', self.test)
-        self.icon_view.connect('item-activated', self.test)
-        self.icon_view.connect('move-cursor', self.test)
-        self.icon_view.connect('select-cursor-item', self.test)
-        self.icon_view.connect('selection-changed', self.test)
-        self.icon_view.connect('toggle-cursor-item', self.test)
-        self.icon_view.connect('unselect-all', self.test)
+        self.icon_view.connect('selection-changed', self.on_selection_changed)
 
-    def test(self, *args, **kwargs):
-        print 'crap'
-
-    def on_emblem_selected(self, widget, item):
-        print self.icon_view.get_model()[item][2]
+    def on_selection_changed(self, widget):
+        for file in self.files:
+            partial_cmd = 'gvfs-set-attribute "%s" -t' % file.get_uri()
+            # Clear previous emblems
+            os.system('%s unset metadata::emblems' % partial_cmd)
+            # Add new emblems
+            emblem = ''.join([widget.get_model()[item][2]
+                              for item in widget.get_selected_items()])
+            os.system('%s stringv metadata::emblems %s' % (partial_cmd, emblem))
+            # The add_emblem is called too to see the emblem just in the
+            # moment, if not, a nautilus refresh will be needed
+            file.add_emblem(emblem)
 
     def get_actual_emblems(self, files):
         return []
