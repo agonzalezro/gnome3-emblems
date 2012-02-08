@@ -21,7 +21,15 @@ This extension will brings to you a new property page:
 Installation
 ------------
 
-As ``root`` user copy the .py file in /usr/share/nautilus-python/extensions/
+You will need to install `python-nautilus` before use this extension.
+
+In debian based systems as `root`:
+
+    apt-get install python-nautilus
+
+As `root` user copy the `.py` file in `/usr/share/nautilus-python/extensions/`.
+
+You need to kill nautilus: `nautilus -q` and restart it again: `nautilus`.
 
 
 Bugs
@@ -39,3 +47,4 @@ This is a work in progress in a very early state, things that must be done
     - If some of the emblems is changed, all the files will have the same
       emblems.
 4. Create a instalation script.
+5. Add gettext to i18n.
