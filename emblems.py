@@ -1,6 +1,9 @@
 import os
 from gi.repository import Gtk, GdkPixbuf, Nautilus, GObject
 
+__version__ = open(
+        os.path.join(os.path.dirname(__file__), 'VERSION')).read()[0:-1]
+
 
 class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
     def __init__(self):
