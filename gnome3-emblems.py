@@ -14,7 +14,6 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
         self.connect_signals()
         return property_page
 
-
     def create_property_page(self):
         property_label = Gtk.Label('Emblems')
         property_label.show()
