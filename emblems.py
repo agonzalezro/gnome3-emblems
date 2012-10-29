@@ -1,8 +1,9 @@
 import os
-from gi.repository import Gtk, GdkPixbuf, Nautilus, GObject
 
-__version__ = open(
-        os.path.join(os.path.dirname(__file__), 'VERSION')).read()[0:-1]
+from gi.repository import Gtk, GdkPixbuf, Nautilus, GObject
+from gi._glib import GError
+
+__version__ = 0.2
 
 
 class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
@@ -60,22 +61,27 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
 
     @staticmethod
     def get_icon_name(name):
-        '''Returns the name human readable.
+        """Returns the name human readable.
 
         >>> Emblems.get_icon_name('emblem-test-name-emblem')
         Test name
-        '''
+        """
         name = name.replace('-emblem', '')
         name = name.replace('emblem-', '')
         name = name.replace('-', ' ')
         return name[0].upper() + name[1:]
 
     def fill_emblems(self, actual_emblems):
-        '''Fill the listore with the proper icons.
-        '''
+        """Fill the listore with the proper icons."""
         theme = Gtk.IconTheme.get_default()
         icons = theme.list_icons(None)
         for icon in icons:
             if 'emblem' in icon:
-                pixbuf = theme.load_icon(icon, 48, 0)
-                self.list_store.append([pixbuf, self.get_icon_name(icon), icon])
+                try:
+                    pixbuf = theme.load_icon(icon, 48, 0)
+                except GError:
+                    # This exception is to avoid bug #4 at github:
+                    # https://github.com/agonzalezro/gnome3-emblems/issues/4
+                    pass
+                else:
+                    self.list_store.append([pixbuf, self.get_icon_name(icon), icon])
