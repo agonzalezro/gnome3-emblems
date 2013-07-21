@@ -1,9 +1,12 @@
 import os
 
 from gi.repository import Gtk, GdkPixbuf, Nautilus, GObject
-from gi._glib import GError
+try:
+    from gi._glib import GError
+except ImportError:
+    from gi.repository.GLib import GError  # flake8: noqa
 
-__version__ = 0.2
+__version__ = 0.3
 
 
 class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
@@ -46,15 +49,21 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
     def on_selection_changed(self, widget):
         for file in self.files:
             partial_cmd = 'gvfs-set-attribute "%s" -t' % file.get_uri()
-            # Clear previous emblems
-            os.system('%s unset metadata::emblems' % partial_cmd)
-            # Add new emblems
+
             emblem = ''.join([widget.get_model()[item][2]
                               for item in widget.get_selected_items()])
-            os.system('%s stringv metadata::emblems %s' % (partial_cmd, emblem))
-            # The add_emblem is called too to see the emblem just in the
-            # moment, if not, a nautilus refresh will be needed
-            file.add_emblem(emblem)
+            if emblem == '':
+                file.add_emblem(emblem)
+            else:
+                # Clear previous emblems
+                os.system('%s unset metadata::emblems' % partial_cmd)
+                # Add new emblems
+                os.system(
+                    '%s stringv metadata::emblems %s' % (partial_cmd, emblem)
+                )
+                # The add_emblem is called too to see the emblem just in the
+                # moment, if not, a nautilus refresh will be needed
+                # file.add_emblem(emblem)
 
     def get_actual_emblems(self, files):
         return []
@@ -84,4 +93,6 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
                     # https://github.com/agonzalezro/gnome3-emblems/issues/4
                     pass
                 else:
-                    self.list_store.append([pixbuf, self.get_icon_name(icon), icon])
+                    self.list_store.append(
+                        [pixbuf, self.get_icon_name(icon), icon]
+                    )
