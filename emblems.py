@@ -10,8 +10,8 @@ __version__ = 0.3
 
 
 class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
-    def __init__(self):
-        pass
+    def __init__(self, clear_icon_name='gtk-remove'):
+        self.clear_icon_name = clear_icon_name
 
     def get_property_pages(self, files):
         self.files = files
@@ -47,16 +47,24 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
         self.icon_view.connect('selection-changed', self.on_selection_changed)
 
     def on_selection_changed(self, widget):
+        clear_emblems = lambda partial_cmd: os.system(
+            '%s unset metadata::emblems' % partial_cmd
+        )
+
         for file in self.files:
             partial_cmd = 'gvfs-set-attribute "%s" -t' % file.get_uri()
 
-            emblem = ''.join([widget.get_model()[item][2]
-                              for item in widget.get_selected_items()])
+            emblem = ''.join(
+                widget.get_model()[item][2]
+                for item in widget.get_selected_items()
+            )
             if emblem == '':
                 file.add_emblem(emblem)
+            elif emblem == self.clear_icon_name:
+                clear_emblems(partial_cmd)
+                widget.unselect_all()
             else:
-                # Clear previous emblems
-                os.system('%s unset metadata::emblems' % partial_cmd)
+                clear_emblems(partial_cmd)
                 # Add new emblems
                 os.system(
                     '%s stringv metadata::emblems %s' % (partial_cmd, emblem)
@@ -74,6 +82,7 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
 
         >>> Emblems.get_icon_name('emblem-test-name-emblem')
         Test name
+
         """
         name = name.replace('-emblem', '')
         name = name.replace('emblem-', '')
@@ -81,8 +90,19 @@ class Emblems(GObject.GObject, Nautilus.PropertyPageProvider):
         return name[0].upper() + name[1:]
 
     def fill_emblems(self, actual_emblems):
-        """Fill the listore with the proper icons."""
+        """Fill the list of icons with all of them with a name like *emblem*.
+        Add a first icon too that will be the one that is going to clear the
+        emblems.
+
+        """
         theme = Gtk.IconTheme.get_default()
+
+        self.list_store.append([
+            theme.load_icon(self.clear_icon_name, 48, 0),
+            'Clear emblems',
+            self.clear_icon_name
+        ])
+
         icons = theme.list_icons(None)
         for icon in icons:
             if 'emblem' in icon:
