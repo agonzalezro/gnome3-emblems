@@ -15,7 +15,7 @@ What's this?
 
 This extension will brings to you a new property page:
 
-![screenshot](https://p.twimg.com/AlKL6fPCEAA_g0_.png)
+![screenshot](https://raw.githubusercontent.com/agonzalezro/gnome3-emblems/master/screenshot.png)
 
 
 Installation
